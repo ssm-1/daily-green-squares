@@ -1,0 +1,26 @@
+name: Daily Green Square
+
+on:
+  schedule:
+    - cron: "17 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record daily activity
+        env:
+          GH_USER: ${{ github.actor }}
+          GH_ID: ${{ github.actor_id }}
+        run: |
+          git config user.name "$GH_USER"
+          git config user.email "${GH_ID}+${GH_USER}@users.noreply.github.com"
+          date -u +"%Y-%m-%d %H:%M:%S UTC" >> activity.log
+          git add activity.log
+          git commit -m "Daily activity $(date -u +%F)"
+          git push
